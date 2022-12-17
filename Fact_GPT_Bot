@@ -1,0 +1,37 @@
+# Import necessary libraries
+import openai
+import tweepy
+import random
+
+# access twitter and openAI API keys
+fref = open('keys.txt','r', newline = '\n')
+key_string = fref.read()
+fref.close()
+keys = key_string.split("_")
+
+CONSUMER_KEY = keys[0]
+CONSUMER_SECRET = keys[1]
+ACCESS_KEY = keys[2]
+ACCESS_SECRET = keys[3]
+BEARER_TOKEN = keys[4]
+OPENAI_KEY = keys[5][:-1]
+
+client = tweepy.Client(BEARER_TOKEN,CONSUMER_KEY,CONSUMER_SECRET,ACCESS_KEY, ACCESS_SECRET)
+auth = tweepy.OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET,ACCESS_KEY, ACCESS_SECRET)
+api = tweepy.API(auth)
+
+# Set openai API key
+openai.api_key = OPENAI_KEY
+
+tweet_raw = openai.Completion.create(
+    model="text-davinci-003",
+    prompt= "give me a unique fun fact with a hashtag relating to it at the end",
+    max_tokens=2048,
+    top_p=1,
+    temperature=0.9,
+    frequency_penalty = 2.0
+)
+
+tweet = tweet_raw.choices[0].text[2:]
+
+client.create_tweet(text = tweet)
